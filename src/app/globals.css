@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 60 56% 91%; /* #F5F5DC Light Beige */
+    --foreground: 120 30% 20%; /* Dark Green text */
+
+    --card: 60 56% 96%; /* Lighter Beige for cards */
+    --card-foreground: 120 30% 20%; /* Dark Green text */
+
+    --popover: 60 56% 96%; /* Lighter Beige for popovers */
+    --popover-foreground: 120 30% 20%; /* Dark Green text */
+
+    --primary: 120 25% 65%; /* #8FBC8F Fresh Green */
+    --primary-foreground: 0 0% 100%; /* White */
+
+    --secondary: 120 15% 80%; /* Lighter shade of green */
+    --secondary-foreground: 120 30% 20%; /* Dark Green text */
+
+    --muted: 60 30% 85%; /* Muted beige */
+    --muted-foreground: 60 20% 45%; /* Darker muted text */
+
+    --accent: 46 59% 74%; /* #E8D08F Soft Yellow */
+    --accent-foreground: 46 40% 25%; /* Dark brown/gold text for contrast on yellow */
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 120 20% 80%; /* Soft green border */
+    --input: 120 20% 88%; /* Soft green input background */
+    --ring: 120 25% 55%; /* Primary green for ring */
+    
+    --chart-1: 120 25% 65%;
+    --chart-2: 46 59% 74%;
+    --chart-3: 120 15% 80%;
+    --chart-4: 60 30% 85%;
+    --chart-5: 120 30% 40%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar specific colors - can be adjusted if sidebar is used, for now align with main theme */
+    --sidebar-background: 60 56% 93%;
+    --sidebar-foreground: 120 30% 20%;
+    --sidebar-primary: 120 25% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 46 59% 74%;
+    --sidebar-accent-foreground: 46 40% 25%;
+    --sidebar-border: 120 20% 80%;
+    --sidebar-ring: 120 25% 55%;
+  }
+
+  .dark {
+    /* Keeping dark mode fairly standard but can be themed too */
+    --background: 120 10% 10%; /* Dark Greenish Black */
+    --foreground: 60 30% 90%; /* Light Beige text */
+
+    --card: 120 10% 15%;
+    --card-foreground: 60 30% 90%;
+
+    --popover: 120 10% 15%;
+    --popover-foreground: 60 30% 90%;
+
+    --primary: 120 25% 55%; /* Slightly darker Fresh Green */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 120 15% 30%; /* Darker Lighter Green */
+    --secondary-foreground: 60 30% 90%;
+
+    --muted: 120 10% 25%;
+    --muted-foreground: 60 30% 70%;
+
+    --accent: 46 59% 64%; /* Slightly desaturated Soft Yellow for dark mode */
+    --accent-foreground: 46 40% 15%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 120 15% 25%;
+    --input: 120 15% 28%;
+    --ring: 120 25% 45%;
+    
+    --chart-1: 120 25% 55%;
+    --chart-2: 46 59% 64%;
+    --chart-3: 120 15% 60%;
+    --chart-4: 60 30% 45%;
+    --chart-5: 120 30% 80%;
+
+    /* Sidebar specific colors for dark mode */
+    --sidebar-background: 120 10% 12%;
+    --sidebar-foreground: 60 30% 88%;
+    --sidebar-primary: 120 25% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 46 59% 64%;
+    --sidebar-accent-foreground: 46 40% 15%;
+    --sidebar-border: 120 15% 25%;
+    --sidebar-ring: 120 25% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    @apply font-body; /* Apply PT Sans by default */
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline; /* Apply PT Sans to headlines */
+  }
+}

@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificador de Enfermedades de Limón</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f8f8e6;
+            color: #222;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background: #99bc99;
+            color: #fff;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding-left: 40px;
+            letter-spacing: 1px;
+            width: 100vw;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-left: 20px;
+        }
+
+        .brand-icon {
+            font-size: 2em;
+            animation: leafFloat 3s ease-in-out infinite;
+        }
+
+        .brand-text {
+            font-size: 2.2em;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+
+        @keyframes leafFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-3px) rotate(2deg); }
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 32px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .header h1 {
+            color: #99bc99;
+            font-size: 2em;
+            font-weight: bold;
+            margin: 32px 0 12px 0;
+            text-align: center;
+        }
+
+        .header h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #ff9800; /* Naranja */
+            font-weight: 400;
+        }
+
+        .header p {
+            color: #444;
+            font-size: 1.1em;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+
+        .upload-method-selector {
+            background: #f8f8e6;
+            display: flex;
+            gap: 20px;
+            border-radius: 16px;
+            padding: 6px 6px;
+            margin: 28px 0 28px 0;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .method-button {
+            background: #fff;
+            color: #99bc99;
+            border: 2px solid #99bc99;
+            border-radius: 14px;
+            font-weight: bold;
+            font-size: 1em;
+            padding: 12px 28px;
+            margin: 0 0 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            outline: none;
+            z-index: 1;
+            position: relative;
+        }
+
+        .method-button.active {
+            background: #99bc99;
+            color: #fff;
+            border: 2px solid #99bc99;
+            z-index: 2;
+        }
+
+        .method-button:not(:first-child) {
+            margin-left: -6px;
+        }
+
+        .method-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #99bc9940;
+        }
+
+        .method-button:hover:not(.active) {
+            background: #f8f8e6;
+            color: #99bc99;
+            border-color: #99bc99;
+        }
+
+        .upload-section {
+            width: 100%;
+            margin: 20px 0 0 0;
+        }
+
+        .upload-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .file-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .file-select-button {
+            background: #99bc99;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-select-button:hover {
+            background: #7fa87f;
+        }
+
+        .file-status-field {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #99bc99;
+            border-radius: 6px;
+            background: #fff;
+            color: #666;
+            font-style: italic;
+        }
+
+        .url-input-container {
+            background: #fff;
+            border: 2px solid #99bc99;
+            border-radius: 14px;
+            padding: 24px;
+            margin: 14px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .url-input-container.active {
+            display: block;
+        }
+
+        .url-label {
+            color: #99bc99;
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #99bc99;
+            border-radius: 8px;
+            font-size: 1em;
+            text-align: center;
+            background: #f8f8e6;
+            color: #333;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #7fa87f;
+            box-shadow: 0 0 0 2px #99bc9940;
+        }
+
+        .url-instructions {
+            color: #99bc99;
+            font-size: 0.98em;
+            margin-bottom: 0;
+        }
+
+        .url-examples {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .upload-area {
+            border: 2px solid #99bc99;
+            border-radius: 14px;
+            background: #fff;
+            min-height: 160px;
+            padding: 24px;
+            margin: 14px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-area:hover {
+            border-color: #f57c00;
+            background: #fff8e1;
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            border-color: #f57c00;
+            background: #fff8e1;
+            transform: scale(1.02);
+        }
+
+        .predict-button {
+            width: 100%;
+            background: #99bc99;
+            color: #fff;
+            border: none;
+            padding: 13px 0;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            margin: 22px 0 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .predict-button:hover {
+            background: #7fa87f;
+        }
+
+        .predict-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 10px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .status {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #c62828;
+        }
+
+        .results {
+            background: #f8f9fa;
+            padding: 24px;
+            border-radius: 15px;
+            margin: 32px 0 32px 0;
+        }
+
+        .prediction {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .prediction h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .confidence-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 25px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: #99bc99;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .confidence-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .api-status {
+            background: #fff8e1;
+            color: #f57c00;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .file-info {
+            background: #fff8e1;
+            color: #f57c00;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .supported-formats {
+            background: none;
+            color: #99bc99;
+            padding: 0;
+            margin: 0 0 10px 0;
+            font-size: 0.98em;
+            text-align: left;
+        }
+
+        .recommendations {
+            background: #f8f8e6;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .recommendations h4 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .recommendations ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .recommendations li {
+            margin: 8px 0;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .recommendations li:before {
+            content: "";
+            margin-right: 8px;
+        }
+
+        .severity-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .severity-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .severity-medium {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .severity-low {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            padding: 24px;
+            border-radius: 14px;
+            margin: 32px 0 32px 0;
+            text-align: center;
+        }
+
+        .info-section h3 {
+            color: #99bc99;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .info-section p {
+            color: #444;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            font-size: 1em;
+        }
+
+        .disclaimer {
+            font-size: 0.95em;
+            color: #888;
+            font-style: italic;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            margin-top: 14px;
+        }
+
+        .footer {
+            width: 100vw;
+            background: #99bc99;
+            color: #fff;
+            text-align: center;
+            padding: 18px 0;
+            font-size: 1.1em;
+            margin: 0;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            transform: translateX(-50%);
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 10px 0;
+            }
+
+            .brand-text {
+                font-size: 1.8em;
+            }
+
+            .brand-icon {
+                font-size: 1.5em;
+            }
+
+
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .header h2 {
+                font-size: 1.5em;
+            }
+            
+            .card-content {
+                padding: 20px;
+            }
+
+            .info-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <div class="brand-icon">🍃</div>
+            <div class="brand-text">LLDD.AI</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Lemon Leaf Disease Detection</h1>
+            <p>Sube una imagen de una hoja de limón o proporciona una URL de imagen. Nuestra IA la analizará y predecirá posibles enfermedades, ayudándote a mantener tus limoneros saludables.</p>
+        </div>
+
+                <div class="api-status" id="apiStatus">
+                     Verificando conexión con API...
+                </div>
+
+                <!-- Selector de método de carga -->
+                <div class="upload-method-selector">
+                    <button class="method-button active" id="uploadImageBtn">
+                        <span>☁️</span>
+                        Subir Imagen
+                    </button>
+                    <button class="method-button" id="imageUrlBtn">
+                        <span>🔗</span>
+                        URL de Imagen
+                    </button>
+                </div>
+
+                <!-- Sección de carga de archivo -->
+                <div class="upload-section" id="fileUploadSection">
+                    <h3>Subir Imagen de Hoja de Limón</h3>
+                    <div class="file-input-container">
+                        <button class="file-select-button" id="fileSelectBtn">Seleccionar archivo</button>
+                        <input type="text" class="file-status-field" id="fileStatusField" value="Ningún archivo seleccionado" readonly>
+                    </div>
+                    <div class="supported-formats">
+                        Soporta PNG, JPG, JPEG, BMP, TIFF, WEBP. Máx. 4MB.
+                    </div>
+                </div>
+
+                <!-- Sección de URL -->
+                <div class="upload-section" id="urlUploadSection" style="display: none;">
+                    <h3>Ingresar URL de Imagen</h3>
+                    <div class="url-input-container">
+                        <div class="url-label">PEGA TU URL DE IMAGEN AQUÍ:</div>
+                        <input type="url" 
+                               id="urlInput" 
+                               placeholder="https://example.com/lemon-leaf.jpg" 
+                               class="url-input">
+                    </div>
+                    <div class="url-instructions">
+                        Ingresa un enlace directo a una imagen de hoja de limón. Soporta PNG, JPG, JPEG, BMP, TIFF, WEBP. Máx. 10MB.
+                    </div>
+                    <div class="url-examples" style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        <strong>Ejemplos de URLs válidas (enlaces directos a imágenes):</strong><br>
+                        • https://images.unsplash.com/photo-1234567890/lemon-leaf.jpg<br>
+                        • https://example.com/path/to/lemon-image.png<br>
+                        • https://your-domain.com/uploads/lemon-leaf.jpeg<br><br>
+                        <strong>URLs que NO funcionan:</strong><br>
+                        • https://example.com/page-with-image (página web)<br>
+                        • https://google.com/search?q=lemon+leaf (búsqueda)<br>
+                        • https://social-media.com/post/123 (post de red social)
+                    </div>
+                </div>
+
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" accept="image/*">
+                    <div class="upload-label" id="uploadLabel">
+                        La vista previa de tu imagen aparecerá aquí
+                    </div>
+                    <img id="previewImage" class="preview-image" style="display: none;">
+                </div>
+
+                <button class="predict-button" id="predictBtn" disabled>Predecir Enfermedad</button>
+
+                <div id="fileInfo" class="file-info" style="display: none;"></div>
+
+                <div id="status" class="status" style="display: none;">
+                    Analizando imagen...
+                </div>
+
+                <div id="error" class="error" style="display: none;"></div>
+
+                <div id="results" class="results" style="display: none;">
+                    <div class="prediction">
+                        <h3> Resultado del Análisis</h3>
+                        <div id="predictionText"></div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceFill"></div>
+                            <div class="confidence-text" id="confidenceText"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendations" id="recommendations" style="display: none;">
+                        <h4>
+                             Recomendaciones de Tratamiento
+                            <span id="severityIndicator" class="severity-indicator"></span>
+                        </h4>
+                        <div id="recommendationsText"></div>
+                    </div>
+                </div>
+
+        <!-- Sección informativa -->
+        <div class="info-section">
+            <h3>¿Por qué usar LLDD.AI?</h3>
+            <p>La detección temprana de enfermedades en plantas es crucial para un tratamiento efectivo y prevenir la propagación. LLDD.AI proporciona una forma rápida y accesible de obtener una evaluación inicial de la salud de tu limonero.</p>
+            <p class="disclaimer">Nota: Esta herramienta es solo para fines informativos y no debe reemplazar el asesoramiento agrícola profesional. Siempre consulta con un experto en patología vegetal para un diagnóstico y tratamiento definitivo.</p>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 LLDD.AI. Todos los derechos reservados.</p>
+        <p>Desarrollado con TensorFlow & Flask</p>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:5000/predict';
+        
+        // Etiquetas en español
+        const labels = {
+            'Anthracnose': 'Antracnosis',
+            'Bacterial_Blight': 'Tizón Bacteriano',
+            'Black_Spot': 'Mancha Negra',
+            'Canker': 'Cáncer',
+            'Curl_Virus': 'Virus del Rizado',
+            'Deficiency': 'Deficiencia',
+            'Dry_Leaf': 'Hoja Seca',
+            'Greening': 'Enverdecimiento',
+            'Healthy': 'Sano',
+            'Sooty_Mould': 'Moho Negro',
+            'Spider_Mites': 'Ácaros'
+        };
+
+        // Indicadores de severidad
+        const severityLevels = {
+            'Anthracnose': 'high',
+            'Bacterial_Blight': 'high',
+            'Black_Spot': 'medium',
+            'Canker': 'high',
+            'Curl_Virus': 'high',
+            'Deficiency': 'medium',
+            'Dry_Leaf': 'low',
+            'Greening': 'high',
+            'Healthy': 'low',
+            'Sooty_Mould': 'medium',
+            'Spider_Mites': 'medium'
+        };
+
+        // Formatos soportados
+        const supportedFormats = ['jpg', 'jpeg', 'png', 'bmp', 'tiff', 'webp'];
+
+        // Verificar conexión con API
+        async function checkAPI() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/health');
+                
+                if (response.ok) {
+                    document.getElementById('apiStatus').innerHTML = 'API conectada correctamente';
+                    document.getElementById('apiStatus').style.background = '#e8f5e8';
+                    document.getElementById('apiStatus').style.color = '#2e7d32';
+                } else {
+                    throw new Error('API no responde');
+                }
+            } catch (error) {
+                document.getElementById('apiStatus').innerHTML = 'Error conectando con API. Asegúrate de que el servidor Flask esté ejecutándose en http://127.0.0.1:5000';
+                document.getElementById('apiStatus').style.background = '#f8d7da';
+                document.getElementById('apiStatus').style.color = '#721c24';
+            }
+        }
+
+        // Variables globales para el estado
+        let currentUploadMethod = 'file';
+        let selectedFile = null;
+        let imageUrl = '';
+
+        // Configurar selector de método de carga
+        function setupUploadMethodSelector() {
+            const uploadImageBtn = document.getElementById('uploadImageBtn');
+            const imageUrlBtn = document.getElementById('imageUrlBtn');
+            const fileUploadSection = document.getElementById('fileUploadSection');
+            const urlUploadSection = document.getElementById('urlUploadSection');
+
+            uploadImageBtn.addEventListener('click', () => {
+                currentUploadMethod = 'file';
+                uploadImageBtn.classList.add('active');
+                imageUrlBtn.classList.remove('active');
+                fileUploadSection.style.display = 'block';
+                urlUploadSection.style.display = 'none';
+                
+                // Resetear preview
+                hidePreview();
+                hideUrlWarning();
+                
+                updatePredictButton();
+            });
+
+            imageUrlBtn.addEventListener('click', () => {
+                currentUploadMethod = 'url';
+                imageUrlBtn.classList.add('active');
+                uploadImageBtn.classList.remove('active');
+                fileUploadSection.style.display = 'none';
+                urlUploadSection.style.display = 'block';
+                
+                // Resetear preview
+                hidePreview();
+                hideUrlWarning();
+                
+                // Asegurar que el campo de URL esté visible y enfocado
+                setTimeout(() => {
+                    const urlInput = document.getElementById('urlInput');
+                    if (urlInput) {
+                        urlInput.style.display = 'block';
+                        urlInput.style.visibility = 'visible';
+                        urlInput.focus();
+                        urlInput.select();
+                    }
+                }, 100);
+                
+                updatePredictButton();
+            });
+        }
+
+        // Configurar subida de archivos
+        function setupFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const previewImage = document.getElementById('previewImage');
+            const fileSelectBtn = document.getElementById('fileSelectBtn');
+            const fileStatusField = document.getElementById('fileStatusField');
+            
+            fileSelectBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            uploadArea.addEventListener('click', () => {
+                if (currentUploadMethod === 'file') {
+                    fileInput.click();
+                }
+            });
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (currentUploadMethod === 'file') {
+                    uploadArea.classList.add('dragover');
+                }
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                if (currentUploadMethod === 'file') {
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        handleFile(files[0]);
+                    }
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+        }
+
+        // Configurar entrada de URL
+        function setupUrlInput() {
+            const urlInput = document.getElementById('urlInput');
+            
+            urlInput.addEventListener('input', async (e) => {
+                imageUrl = e.target.value.trim();
+                updatePredictButton();
+                
+                if (imageUrl && isValidUrl(imageUrl)) {
+                    // Mostrar advertencia si no parece ser URL de imagen directa
+                    if (!isImageUrl(imageUrl)) {
+                        showUrlWarning();
+                    } else {
+                        hideUrlWarning();
+                    }
+                    
+                    // Validar URL antes de mostrar preview
+                    await validateAndShowUrlPreview(imageUrl);
+                } else {
+                    hidePreview();
+                    hideUrlWarning();
+                }
+            });
+        }
+
+        // Validar URL y mostrar preview
+        async function validateAndShowUrlPreview(url) {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/validate-url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.valid) {
+                        showUrlPreview(url);
+                    } else {
+                        hidePreview();
+                        console.warn('URL validation failed:', result.error);
+                    }
+                } else {
+                    // Si falla la validación, intentar mostrar preview de todas formas
+                    showUrlPreview(url);
+                }
+            } catch (error) {
+                console.warn('Error validating URL:', error);
+                // Si falla la validación, intentar mostrar preview de todas formas
+                showUrlPreview(url);
+            }
+        }
+
+        // Validar URL
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Verificar si la URL parece ser de imagen directa
+        function isImageUrl(url) {
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'];
+            const lowerUrl = url.toLowerCase();
+            return imageExtensions.some(ext => lowerUrl.includes(ext));
+        }
+
+        // Mostrar preview de URL
+        function showUrlPreview(url) {
+            const previewImage = document.getElementById('previewImage');
+            const uploadLabel = document.getElementById('uploadLabel');
+            
+            // Mostrar loading en el área de preview
+            uploadLabel.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Cargando imagen desde URL...</div>';
+            
+            previewImage.src = url;
+            previewImage.style.display = 'block';
+            previewImage.onload = () => {
+                // Ocultar el texto y mostrar la imagen
+                uploadLabel.style.display = 'none';
+                previewImage.style.display = 'block';
+            };
+            previewImage.onerror = () => {
+                // Restaurar el estado original
+                uploadLabel.innerHTML = 'La vista previa de tu imagen aparecerá aquí';
+                uploadLabel.style.display = 'block';
+                previewImage.style.display = 'none';
+                alert('No se pudo cargar la imagen desde la URL. Verifica que la URL sea válida y apunte a una imagen.');
+            };
+        }
+
+        // Ocultar preview
+        function hidePreview() {
+            const previewImage = document.getElementById('previewImage');
+            const uploadLabel = document.getElementById('uploadLabel');
+            
+            previewImage.style.display = 'none';
+            uploadLabel.style.display = 'block';
+            uploadLabel.innerHTML = 'La vista previa de tu imagen aparecerá aquí';
+        }
+
+        // Mostrar advertencia de URL
+        function showUrlWarning() {
+            let warningDiv = document.getElementById('urlWarning');
+            if (!warningDiv) {
+                warningDiv = document.createElement('div');
+                warningDiv.id = 'urlWarning';
+                warningDiv.style.cssText = `
+                    background: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    color: #856404;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin: 10px 0;
+                    font-size: 0.9em;
+                `;
+                document.getElementById('urlUploadSection').appendChild(warningDiv);
+            }
+            warningDiv.innerHTML = `
+                <strong>⚠️ Advertencia:</strong> Esta URL no parece ser un enlace directo a una imagen. 
+                Asegúrate de que termine en .jpg, .png, .jpeg, etc.
+            `;
+        }
+
+        // Ocultar advertencia de URL
+        function hideUrlWarning() {
+            const warningDiv = document.getElementById('urlWarning');
+            if (warningDiv) {
+                warningDiv.remove();
+            }
+        }
+
+        // Actualizar estado del botón de predicción
+        function updatePredictButton() {
+            const predictBtn = document.getElementById('predictBtn');
+            let canPredict = false;
+
+            if (currentUploadMethod === 'file' && selectedFile) {
+                canPredict = true;
+            } else if (currentUploadMethod === 'url' && imageUrl && isValidUrl(imageUrl)) {
+                canPredict = true;
+            }
+
+            predictBtn.disabled = !canPredict;
+        }
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor selecciona una imagen válida');
+                return;
+            }
+
+            // Verificar formato
+            const extension = file.name.split('.').pop().toLowerCase();
+            if (!supportedFormats.includes(extension)) {
+                alert(`Formato no soportado: ${extension}. Formatos válidos: ${supportedFormats.join(', ')}`);
+                return;
+            }
+            
+            selectedFile = file;
+            
+            // Actualizar campo de estado del archivo
+            const fileStatusField = document.getElementById('fileStatusField');
+            fileStatusField.value = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            
+            // Mostrar info del archivo
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.innerHTML = `Archivo: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            fileInfo.style.display = 'block';
+            
+            // Mostrar preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const previewImage = document.getElementById('previewImage');
+                const uploadLabel = document.getElementById('uploadLabel');
+                
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+                uploadLabel.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+            
+            updatePredictButton();
+        }
+
+        async function sendToAPI(file) {
+            const statusDiv = document.getElementById('status');
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+            
+            statusDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            resultsDiv.style.display = 'none';
+            statusDiv.textContent = 'Analizando imagen...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = `Error analizando imagen: ${error.message}`;
+                statusDiv.style.display = 'none';
+            }
+        }
+
+        async function sendUrlToAPI(url) {
+            const statusDiv = document.getElementById('status');
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+            
+            statusDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            resultsDiv.style.display = 'none';
+            statusDiv.textContent = 'Analizando imagen desde URL...';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:5000/predict-url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                errorDiv.style.display = 'block';
+                
+                // Mostrar mensaje de error más útil
+                if (error.message.includes('URL points to a webpage')) {
+                    errorDiv.innerHTML = `
+                        <strong>❌ Error: URL apunta a una página web, no a una imagen</strong><br>
+                        <p>La URL que proporcionaste lleva a una página web en lugar de a un archivo de imagen directo.</p>
+                        <p><strong>Solución:</strong> Busca una URL que termine en .jpg, .png, .jpeg, etc.</p>
+                        <p><strong>Ejemplo correcto:</strong> https://example.com/image.jpg</p>
+                    `;
+                } else if (error.message.includes('Content-Type')) {
+                    errorDiv.innerHTML = `
+                        <strong>❌ Error: URL no es una imagen válida</strong><br>
+                        <p>La URL no apunta a un archivo de imagen.</p>
+                        <p><strong>Solución:</strong> Usa un enlace directo a un archivo de imagen.</p>
+                    `;
+                } else {
+                    errorDiv.textContent = `Error analizando imagen desde URL: ${error.message}`;
+                }
+                
+                statusDiv.style.display = 'none';
+            }
+        }
+
+        // Configurar botón de predicción
+        function setupPredictButton() {
+            const predictBtn = document.getElementById('predictBtn');
+            
+            predictBtn.addEventListener('click', async () => {
+                if (currentUploadMethod === 'file' && selectedFile) {
+                    await sendToAPI(selectedFile);
+                } else if (currentUploadMethod === 'url' && imageUrl && isValidUrl(imageUrl)) {
+                    await sendUrlToAPI(imageUrl);
+                }
+            });
+        }
+
+        function displayResults(result) {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+            const predictionText = document.getElementById('predictionText');
+            const confidenceFill = document.getElementById('confidenceFill');
+            const confidenceText = document.getElementById('confidenceText');
+            const recommendationsDiv = document.getElementById('recommendations');
+            const recommendationsText = document.getElementById('recommendationsText');
+            const severityIndicator = document.getElementById('severityIndicator');
+            
+            statusDiv.style.display = 'none';
+            
+            const label = labels[result.label] || result.label;
+            predictionText.innerHTML = `<strong>${label}</strong>`;
+            
+            const confidencePercent = (result.confidence * 100).toFixed(1);
+            confidenceFill.style.width = `${confidencePercent}%`;
+            confidenceText.textContent = `${confidencePercent}%`;
+            
+            // Mostrar recomendaciones si existen
+            if (result.recommendations && result.recommendations.length > 0) {
+                recommendationsDiv.style.display = 'block';
+                
+                // Configurar indicador de severidad
+                const severity = severityLevels[result.label] || 'medium';
+                severityIndicator.className = `severity-indicator severity-${severity}`;
+                
+                const severityText = {
+                    'high': 'ALTA',
+                    'medium': 'MEDIA',
+                    'low': 'BAJA'
+                };
+                severityIndicator.textContent = severityText[severity];
+                
+                // Mostrar recomendaciones
+                recommendationsText.innerHTML = '<ul>' + 
+                    result.recommendations.map(rec => `<li>${rec}</li>`).join('') + 
+                    '</ul>';
+            } else {
+                recommendationsDiv.style.display = 'none';
+            }
+            
+            resultsDiv.style.display = 'block';
+        }
+
+        // Inicializar
+        setupUploadMethodSelector();
+        setupFileUpload();
+        setupUrlInput();
+        setupPredictButton();
+        checkAPI();
+    </script>
+</body>
+</html> 

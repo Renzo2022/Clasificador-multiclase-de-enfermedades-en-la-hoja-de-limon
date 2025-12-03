@@ -1,0 +1,39 @@
+# Entornos virtuales de Python
+env311/
+nombre_entorno/
+venv/
+ENV/
+env/
+.venv
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Archivos del sistema
+.DS_Store
+desktop.ini
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+
+# Archivos temporales
+*.tmp
+*.log
+.env
+.env.local
+
+# Node modules (si usas Node.js)
+node_modules/
+npm-debug.log
