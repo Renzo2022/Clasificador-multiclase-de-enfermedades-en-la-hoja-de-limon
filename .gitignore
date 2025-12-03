@@ -38,7 +38,3 @@ Thumbs.db
 node_modules/
 npm-debug.log
 
-# Modelos grandes
-*.h5
-*.pkl
-*.pth

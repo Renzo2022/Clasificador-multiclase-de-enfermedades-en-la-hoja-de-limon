@@ -6,9 +6,26 @@ from PIL import Image
 import io
 import requests
 from urllib.parse import urlparse
+import os
 
 app = Flask(__name__)
 CORS(app)  # Habilitar CORS para todas las rutas
+
+# Descargar modelo si no existe
+def ensure_model_exists():
+    if not os.path.exists('modeloCNN.h5'):
+        print("Descargando modelo...")
+        # Reemplaza con tu URL de descarga
+        MODEL_URL = os.getenv('MODEL_URL', 'https://drive.google.com/uc?export=download&id=1GIIgeGYzYoNd4C0nXo7wfpDLE3-3TjfT')
+        try:
+            response = requests.get(MODEL_URL, timeout=300)
+            with open('modeloCNN.h5', 'wb') as f:
+                f.write(response.content)
+            print("Modelo descargado exitosamente")
+        except Exception as e:
+            print(f"Error descargando modelo: {e}")
+
+ensure_model_exists()
 
 # Cargar el modelo al iniciar
 model = tf.keras.models.load_model('modeloCNN.h5')
@@ -313,4 +330,5 @@ def health():
     return jsonify({'status': 'OK', 'model_loaded': True})
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    port = int(os.getenv('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False) 
