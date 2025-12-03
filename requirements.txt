@@ -5,3 +5,4 @@ numpy==2.0.2
 Pillow==10.4.0
 requests==2.32.4
 gunicorn==21.2.0
+h5py==3.11.0

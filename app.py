@@ -5,30 +5,85 @@ import numpy as np
 from PIL import Image
 import io
 import requests
-from urllib.parse import urlparse
+import h5py
+import time
 import os
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 CORS(app)  # Habilitar CORS para todas las rutas
 
-# Descargar modelo si no existe
-def ensure_model_exists():
-    if not os.path.exists('modeloCNN.h5'):
-        print("Descargando modelo...")
-        # Reemplaza con tu URL de descarga
-        MODEL_URL = os.getenv('MODEL_URL', 'https://drive.google.com/uc?export=download&id=1GIIgeGYzYoNd4C0nXo7wfpDLE3-3TjfT')
+def is_valid_h5_file(filepath):
+    """Verifica si un archivo es un archivo HDF5 válido."""
+    try:
+        with h5py.File(filepath, 'r') as f:
+            return True
+    except (OSError, IOError):
+        return False
+
+def download_file_with_retry(url, filepath, max_retries=3, retry_delay=5):
+    """Descarga un archivo con reintentos en caso de error."""
+    for attempt in range(max_retries):
         try:
-            response = requests.get(MODEL_URL, timeout=300)
-            with open('modeloCNN.h5', 'wb') as f:
-                f.write(response.content)
-            print("Modelo descargado exitosamente")
+            print(f"Intento {attempt + 1} de {max_retries} - Descargando modelo...")
+            response = requests.get(url, stream=True, timeout=300)
+            response.raise_for_status()
+            
+            # Guardar el archivo temporalmente
+            temp_path = f"{filepath}.temp"
+            with open(temp_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+            
+            # Verificar que el archivo sea un HDF5 válido
+            if is_valid_h5_file(temp_path):
+                # Si es válido, renombrar al archivo final
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                os.rename(temp_path, filepath)
+                print("Modelo descargado y verificado exitosamente")
+                return True
+            else:
+                print("Error: El archivo descargado no es un modelo HDF5 válido")
+                os.remove(temp_path)
+                
         except Exception as e:
-            print(f"Error descargando modelo: {e}")
+            print(f"Error en el intento {attempt + 1}: {str(e)}")
+            if attempt < max_retries - 1:
+                print(f"Reintentando en {retry_delay} segundos...")
+                time.sleep(retry_delay)
+    
+    return False
 
-ensure_model_exists()
+def ensure_model_exists():
+    model_path = 'modeloCNN.h5'
+    MODEL_URL = os.getenv('MODEL_URL', 'https://drive.google.com/uc?export=download&id=1GIIgeGYzYoNd4C0nXo7wfpDLE3-3TjfT')
+    
+    # Si el archivo existe, verificar que sea válido
+    if os.path.exists(model_path):
+        if is_valid_h5_file(model_path):
+            print("Modelo encontrado y verificado")
+            return True
+        else:
+            print("El archivo del modelo existe pero está corrupto. Intentando descargar de nuevo...")
+            os.remove(model_path)
+    
+    # Si llegamos aquí, necesitamos descargar el modelo
+    print("Iniciando descarga del modelo...")
+    success = download_file_with_retry(MODEL_URL, model_path)
+    
+    if not success:
+        raise RuntimeError("No se pudo descargar un modelo válido después de varios intentos.")
 
-# Cargar el modelo al iniciar
-model = tf.keras.models.load_model('modeloCNN.h5')
+# Inicializar el modelo
+try:
+    ensure_model_exists()
+    print("Cargando modelo...")
+    model = tf.keras.models.load_model('modeloCNN.h5')
+    print("Modelo cargado exitosamente")
+except Exception as e:
+    print(f"Error al cargar el modelo: {str(e)}")
 
 # Etiquetas
 labels = [
